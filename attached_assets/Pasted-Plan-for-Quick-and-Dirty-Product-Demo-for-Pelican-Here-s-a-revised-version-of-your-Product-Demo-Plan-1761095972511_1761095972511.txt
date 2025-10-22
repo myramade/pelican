@@ -1,0 +1,38 @@
+Plan for Quick and Dirty Product Demo for Pelican
+Here’s a revised version of your Product Demo Plan for Pelican — reframed to describe a working, interactive experience, not just a simulated one. The tone is grounded, direct, and investor-ready. It will focus on:
+* Clarity of Value: Showing exactly how Pelican simplifies impact study management, delivers actionable insights, and supports collaboration.  
+* Product Experience: Letting users click, explore, and engage with core flows — no smoke and mirrors.  
+* Investor Fit: Polished visuals, intuitive design, and a clear story about how Pelican can scale.  
+2. Demo Focus Areas
+2.1. Core Workflow: From Intake to Insights
+Persona: Program Lead or Analyst
+We walk through a complete (yet streamlined) study lifecycle using real UI and clickable flows:
+Start a New Impact Study
+* Live Intake Form (pre-filled for demo):  
+    * Program details (name, type, goals)  
+    * Stakeholder identification  
+    * File uploads, including baseline data  
+* Generated Elements:  
+    * Auto-generated surveys and interview templates  
+    * Output: Live Data Mapping + Gap Analysis screen (this is the piece to build with logic)  
+Note: This screen should show missing data fields, prompt for next steps, and visually signal progress gaps.
+Track Study Progress
+* Real Progress Tracker:  
+    * Dynamic progress bar (% complete)  
+    * Phase status (Intake → Data Collection → Reporting)  
+    * Interactive task list showing who has submitted, what’s pending  
+Generate Insights
+* Live Dashboard:  
+    * Executive summary (IRR, ROI, KPIs pulled from dummy backend)  
+    * Heatmap visuals (qualitative + quantitative views)  
+    * Strategy card outputs: Quick Wins, Long Bets, Needs Attention  
+2.2. Collaboration Layer
+* Live Comments Panel:  
+    * Inline comments on specific data entries  
+    * Alert system (e.g., “Jane added feedback on survey results”)  
+    * Show how collaboration drives momentum  
+2.3. User + Admin Management
+* Working Admin View:  
+    * Add/remove team members  
+    * Assign user roles (Admin, Analyst, Viewer)  
+    * Track permissions and compliance indicators

@@ -1,0 +1,148 @@
+"I want to create a simple web application called Pelican App using HTML, CSS, and JavaScript. This app will have the following features:
+
+Login Screen:
+A form for users to enter their email and password.
+A "Login" button that redirects to the Dashboard page.
+Dashboard (Home Page):
+A left-hand sidebar with navigation links (e.g., Dashboard, All Studies, All Reports, Settings).
+A main content area showcasing a list of studies in cards format. Each card should display:
+Study name (e.g., "Leadership Training Program").
+Progress percentage (e.g., "50%").
+A "View Study" button that redirects to the Study Dashboard page.
+Study Dashboard:
+A page displaying details of a specific study.
+A progress bar to show the completion status of the study.
+A section for recommendations (e.g., "Focus on sustaining behavior changes.").
+Technical Requirements:
+
+Use a shared style.css file for consistent styling across all pages.
+Use a shared script.js file for navigation and interactivity.
+Ensure the app uses a clean and modern design with the following color scheme:
+Primary color: #158772 (Teal) for buttons, headers, and sidebar.
+Secondary color: #E8F5F4 (Light Teal) for backgrounds.
+Accent color: #F4B400 (Golden Yellow) for highlights.
+Text color: #333333 (Dark Gray) and #666666 (Muted Gray).
+Use the Poppins Google Font for typography.
+The app should be responsive and adapt to different screen sizes.
+File Structure:
+
+index.html: Login Screen.
+home.html: Dashboard/Home Page.
+dashboard.html: Study Dashboard Page.
+style.css: Shared stylesheet for styling.
+script.js: JavaScript file for navigation and interactivity.
+Bonus (Optional):
+
+Add basic animations (e.g., hover effects for buttons and cards).
+Use localStorage to save and retrieve the progress percentage for studies."
+Additional Documents to Provide for Context
+To help Replit's AI (or any external tool) understand the app design and function better, you can provide:
+
+1. Sample HTML File Structures
+For instance:
+html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pelican App</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Welcome to Pelican App</h1>
+  <script src="script.js"></script>
+</body>
+</html>
+html 16
+
+Open on canvas
+
+2. CSS Design Guidelines
+Provide reusable CSS classes and variables for Replit to follow:
+css
+
+:root {
+  --primary-color: #158772;
+  --secondary-color: #E8F5F4;
+  --accent-color: #F4B400;
+  --text-color: #333333;
+  --text-muted: #666666;
+  --white: #FFFFFF;
+  --font-primary: 'Poppins', sans-serif;
+}
+
+body {
+  font-family: var(--font-primary);
+  background: var(--secondary-color);
+  color: var(--text-color);
+  margin: 0;
+}
+
+button {
+  background: var(--primary-color);
+  color: var(--white);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #116653;
+}
+3. JavaScript Navigation Example
+Provide sample JavaScript code for page navigation:
+javascript
+
+function login() {
+  window.location.href = "home.html";
+}
+
+function viewStudy() {
+  window.location.href = "dashboard.html";
+}
+4. High-Level App Workflow
+Include a diagram or list of how users navigate through the app:
+Login Page → Dashboard → Study Dashboard
+Each page should have buttons or links to return to the previous page or navigate forward.
+Detailed Prompt for Replit
+Here’s how the final detailed prompt could look:
+
+"Please generate a fully functional web application called Pelican App. The app should consist of three pages: Login Screen, Dashboard, and Study Dashboard. The app should be styled using a shared style.css file, and all navigation and interactivity should be implemented in script.js.
+
+App Features:
+
+Login Screen:
+A simple form where users can enter their email and password.
+A "Login" button that redirects to the Dashboard.
+Dashboard (Home Page):
+A left-hand sidebar with navigation links (Dashboard, All Studies, All Reports, Settings).
+A main content area displaying studies in card format.
+Each card should display:
+Study name.
+Progress percentage.
+A "View Study" button that redirects to the Study Dashboard.
+Study Dashboard:
+Displays a progress bar representing study completion.
+Includes a list of recommendations for the user.
+Design Details:
+
+Use the color scheme:
+Primary: #158772 (Teal).
+Secondary: #E8F5F4 (Light Teal).
+Accent: #F4B400 (Golden Yellow).
+Use the Poppins font from Google Fonts.
+Buttons should have hover effects, and cards should have shadow effects.
+File Structure:
+
+index.html: Login Screen.
+home.html: Dashboard with sidebar and cards.
+dashboard.html: Study progress and recommendations.
+style.css: Shared styles for all pages.
+script.js: JavaScript logic for navigation and interactivity.
+Bonus Features:
+
+Make the app responsive to different screen sizes.
+Use localStorage to save and retrieve study progress dynamically."
