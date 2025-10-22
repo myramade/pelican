@@ -20,7 +20,7 @@ interface StudyFiltersProps {
 
 /**
  * Study Filters Component
- * Provides search and filtering capabilities for the Global View
+ * Provides search and filtering capabilities for the Dashboard
  */
 export function StudyFilters({
   searchQuery,

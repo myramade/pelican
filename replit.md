@@ -12,6 +12,12 @@ Create a web application that allows L&D professionals to:
 
 ## Recent Changes (October 22, 2025)
 
+### Survey Sharing & Response Tracking (In Progress)
+- Adding survey invitation management (stakeholder names/emails)
+- Creating shareable survey links for external stakeholders
+- Implementing response tracking and progress monitoring
+- Building IR calculation from aggregated survey responses
+
 ### Database Migration to PostgreSQL
 - **Replaced localStorage with PostgreSQL** for persistent data storage using Drizzle ORM
 - **Created complete REST API** with full CRUD operations:

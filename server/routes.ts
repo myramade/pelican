@@ -4,8 +4,9 @@ import { storage } from "./storage";
 import { openai } from "./openai";
 import { generateSurveyRequestSchema, updateStudySchema } from "@shared/api-schemas";
 import { fromZodError } from "zod-validation-error";
-import { insertStudySchema } from "@shared/schema";
+import { insertStudySchema, insertSurveyInvitationSchema, insertSurveyResponseSchema } from "@shared/schema";
 import { ERROR_MESSAGES, OPENAI_MODEL } from "@shared/constants";
+import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all studies
@@ -122,6 +123,166 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: "Failed to delete study",
         message: "Unable to delete study. Please try again.",
         code: "DELETE_ERROR"
+      });
+    }
+  });
+
+  // Generate share token for study
+  app.post("/api/studies/:id/share", async (req, res) => {
+    try {
+      const study = await storage.getStudy(req.params.id);
+      if (!study) {
+        return res.status(404).json({ 
+          error: "Study not found",
+          code: "NOT_FOUND"
+        });
+      }
+
+      // Return existing token if available
+      if (study.shareToken) {
+        return res.json({ shareToken: study.shareToken });
+      }
+
+      const token = await storage.generateShareToken(req.params.id);
+      if (!token) {
+        return res.status(500).json({ 
+          error: "Failed to generate share token",
+          code: "GENERATION_ERROR"
+        });
+      }
+
+      res.json({ shareToken: token });
+    } catch (error) {
+      console.error("Error generating share token:", error);
+      res.status(500).json({ 
+        error: "Failed to generate share token",
+        code: "GENERATION_ERROR"
+      });
+    }
+  });
+
+  // Get survey invitations for a study
+  app.get("/api/studies/:id/invitations", async (req, res) => {
+    try {
+      const invitations = await storage.getSurveyInvitations(req.params.id);
+      res.json(invitations);
+    } catch (error) {
+      console.error("Error fetching invitations:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch invitations",
+        code: "FETCH_ERROR"
+      });
+    }
+  });
+
+  // Create survey invitation
+  app.post("/api/studies/:id/invitations", async (req, res) => {
+    try {
+      const validationResult = insertSurveyInvitationSchema.safeParse({
+        ...req.body,
+        studyId: req.params.id
+      });
+      
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ 
+          error: "Validation failed",
+          message: validationError.message,
+          code: "VALIDATION_ERROR"
+        });
+      }
+
+      const invitation = await storage.createSurveyInvitation(validationResult.data);
+      res.status(201).json(invitation);
+    } catch (error) {
+      console.error("Error creating invitation:", error);
+      res.status(500).json({ 
+        error: "Failed to create invitation",
+        code: "CREATE_ERROR"
+      });
+    }
+  });
+
+  // Get survey responses for a study
+  app.get("/api/studies/:id/responses", async (req, res) => {
+    try {
+      const responses = await storage.getSurveyResponses(req.params.id);
+      const count = responses.length;
+      res.json({ responses, count });
+    } catch (error) {
+      console.error("Error fetching responses:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch responses",
+        code: "FETCH_ERROR"
+      });
+    }
+  });
+
+  // Public endpoint: Get survey by share token
+  app.get("/api/survey/:token", async (req, res) => {
+    try {
+      const study = await storage.getStudyByShareToken(req.params.token);
+      if (!study) {
+        return res.status(404).json({ 
+          error: "Survey not found",
+          code: "NOT_FOUND"
+        });
+      }
+
+      // Return only survey-relevant data (not internal study details)
+      res.json({
+        id: study.id,
+        programName: study.programName,
+        surveyQuestions: study.surveyQuestions,
+      });
+    } catch (error) {
+      console.error("Error fetching survey:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch survey",
+        code: "FETCH_ERROR"
+      });
+    }
+  });
+
+  // Public endpoint: Submit survey response
+  app.post("/api/survey/:token/submit", async (req, res) => {
+    try {
+      const study = await storage.getStudyByShareToken(req.params.token);
+      if (!study) {
+        return res.status(404).json({ 
+          error: "Survey not found",
+          code: "NOT_FOUND"
+        });
+      }
+
+      const validationResult = insertSurveyResponseSchema.safeParse({
+        studyId: study.id,
+        invitationId: req.body.invitationId || null,
+        responseData: req.body.responseData
+      });
+      
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ 
+          error: "Validation failed",
+          message: validationError.message,
+          code: "VALIDATION_ERROR"
+        });
+      }
+
+      const response = await storage.createSurveyResponse(validationResult.data);
+
+      // Mark invitation as completed if provided
+      if (req.body.invitationId) {
+        await storage.markInvitationCompleted(req.body.invitationId);
+      }
+
+      res.status(201).json(response);
+    } catch (error) {
+      console.error("Error submitting response:", error);
+      res.status(500).json({ 
+        error: "Failed to submit response",
+        code: "SUBMIT_ERROR"
       });
     }
   });
