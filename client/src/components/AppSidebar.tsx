@@ -31,7 +31,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="p-6">
-        <h1 className="text-2xl font-semibold text-sidebar-foreground">Pelican</h1>
+        <h1 className="text-2xl font-semibold text-sidebar-foreground">BirdsAI</h1>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>

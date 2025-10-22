@@ -1,7 +1,7 @@
-# Pelican App
+# BirdsAI
 
 ## Overview
-Pelican App is a web application prototype for managing impact studies of L&D/training programs. It uses AI (OpenAI GPT-5 via Replit AI Integrations) to evaluate programs, generate Kirkpatrick-based surveys, and provide insights. This is a prototype with no login requirement.
+BirdsAI is a web application for managing impact studies of L&D/training programs with portfolio-level analytics. It uses AI (OpenAI GPT-5 via Replit AI Integrations) to evaluate programs, generate Kirkpatrick-based surveys, and provide insights. This is a prototype with no login requirement.
 
 ## Project Goal
 Create a web application that allows L&D professionals to:

@@ -1,6 +1,8 @@
-# Pelican App
+# BirdsAI
 
 A web application for managing impact studies of L&D/training programs with AI-powered survey generation using the Kirkpatrick Four-Level Training Evaluation Model.
+
+**BirdsAI Vue**: Portfolio-level analytics and insights across all your impact studies.
 
 ## 🚀 Features
 

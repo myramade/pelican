@@ -19,19 +19,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { PROGRAM_TYPES, SECTORS } from "@shared/constants";
 
-const PROGRAM_TYPES = [
-  "Leadership",
-  "Compliance",
-  "Sales",
-  "Onboarding",
-  "Technical",
-  "DEI",
-  "Safety",
-  "Coaching",
-  "Professional Skills",
-  "Other",
-];
+const PROGRAM_TYPES_FORM = PROGRAM_TYPES;
 
 const STAKEHOLDER_OPTIONS = [
   "Trainees",
@@ -52,9 +42,12 @@ export default function NewStudy() {
   const [formData, setFormData] = useState({
     impactStudyName: "",
     programName: "",
+    client: "",
     userRole: "",
     programType: "",
+    sector: "",
     programStartDate: "",
+    programEndDate: "",
     programReason: "",
     stakeholders: [] as string[],
   });
@@ -88,9 +81,12 @@ export default function NewStudy() {
       const studyData = {
         impactStudyName: formData.impactStudyName,
         programName: formData.programName,
+        client: formData.client || null,
         userRole: formData.userRole,
         programType: formData.programType,
+        sector: formData.sector || null,
         programStartDate: formData.programStartDate,
+        programEndDate: formData.programEndDate || null,
         programReason: formData.programReason,
         stakeholders: formData.stakeholders,
         uploadedFiles: uploadedFiles,
@@ -193,6 +189,18 @@ export default function NewStudy() {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="client">Client Name</Label>
+              <Input
+                id="client"
+                value={formData.client}
+                onChange={(e) => setFormData({ ...formData, client: e.target.value })}
+                placeholder="e.g., Acme Corporation"
+                data-testid="input-client"
+              />
+              <p className="text-xs text-muted-foreground">Optional: Name of the organization or client</p>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="userRole">Your Role with the Program</Label>
               <Input
                 id="userRole"
@@ -204,28 +212,75 @@ export default function NewStudy() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="programType">Program Type</Label>
-              <Select
-                value={formData.programType}
-                onValueChange={(value) => setFormData({ ...formData, programType: value })}
-                required
-              >
-                <SelectTrigger id="programType" data-testid="select-program-type">
-                  <SelectValue placeholder="Select program type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PROGRAM_TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="programType">Program Type</Label>
+                <Select
+                  value={formData.programType}
+                  onValueChange={(value) => setFormData({ ...formData, programType: value })}
+                  required
+                >
+                  <SelectTrigger id="programType" data-testid="select-program-type">
+                    <SelectValue placeholder="Select program type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PROGRAM_TYPES_FORM.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="sector">Industry Sector</Label>
+                <Select
+                  value={formData.sector}
+                  onValueChange={(value) => setFormData({ ...formData, sector: value })}
+                >
+                  <SelectTrigger id="sector" data-testid="select-sector">
+                    <SelectValue placeholder="Select sector (optional)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SECTORS.map((sector) => (
+                      <SelectItem key={sector} value={sector}>
+                        {sector}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="programStartDate">Program Start Date</Label>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="programStartDate">Program Start Date</Label>
+                <Input
+                  id="programStartDate"
+                  type="date"
+                  value={formData.programStartDate}
+                  onChange={(e) => setFormData({ ...formData, programStartDate: e.target.value })}
+                  required
+                  data-testid="input-program-start-date"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="programEndDate">Program End Date</Label>
+                <Input
+                  id="programEndDate"
+                  type="date"
+                  value={formData.programEndDate}
+                  onChange={(e) => setFormData({ ...formData, programEndDate: e.target.value })}
+                  data-testid="input-program-end-date"
+                />
+                <p className="text-xs text-muted-foreground">Optional</p>
+              </div>
+            </div>
+
+            <div className="space-y-2 hidden">
+              <Label htmlFor="programStartDate">Program Start Date (old)</Label>
               <Input
                 id="programStartDate"
                 type="date"

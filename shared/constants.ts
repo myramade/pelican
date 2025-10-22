@@ -19,6 +19,20 @@ export const PROGRAM_TYPES = [
   "Other",
 ] as const;
 
+// Sectors
+export const SECTORS = [
+  "Technology",
+  "Healthcare",
+  "Finance",
+  "Education",
+  "Manufacturing",
+  "Retail",
+  "Consulting",
+  "Government",
+  "Non-Profit",
+  "Other",
+] as const;
+
 // Stakeholder Types
 export const STAKEHOLDER_TYPES = [
   "Senior Management",
