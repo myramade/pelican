@@ -79,10 +79,13 @@ export default function StudyDetail() {
         <CardContent className="pt-6">
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Overall Progress</span>
+              <span className="text-sm font-medium">Study Progress</span>
               <span className="text-2xl font-semibold" data-testid="text-progress">{study.progress}%</span>
             </div>
             <Progress value={study.progress} className="h-3" />
+            <p className="text-xs text-muted-foreground">
+              Your impact study is underway. We'll notify you as new insights and data become available.
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -161,16 +164,32 @@ export default function StudyDetail() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-sm font-medium mb-1">Organizational Goals</p>
-                <p className="text-sm text-muted-foreground">{study.orgGoals}</p>
+                <p className="text-sm font-medium mb-1">Impact Study Name</p>
+                <p className="text-sm text-muted-foreground">{study.impactStudyName || "Not specified"}</p>
               </div>
               <div>
-                <p className="text-sm font-medium mb-1">Participant Goals</p>
-                <p className="text-sm text-muted-foreground">{study.participantGoals}</p>
+                <p className="text-sm font-medium mb-1">Your Role</p>
+                <p className="text-sm text-muted-foreground">{study.userRole || "Not specified"}</p>
               </div>
               <div>
-                <p className="text-sm font-medium mb-1">Success Definition</p>
-                <p className="text-sm text-muted-foreground">{study.goodLookLike}</p>
+                <p className="text-sm font-medium mb-1">Program Start Date</p>
+                <p className="text-sm text-muted-foreground">{study.programStartDate || "Not specified"}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-1">Why was the Program Created?</p>
+                <p className="text-sm text-muted-foreground">{study.programReason || "Not specified"}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-1">Stakeholders</p>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {study.stakeholders?.map((stakeholder: string, i: number) => (
+                    <Badge key={i} variant="secondary">{stakeholder}</Badge>
+                  )) || <span className="text-sm text-muted-foreground">None specified</span>}
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium mb-1">Uploaded Documents</p>
+                <p className="text-sm text-muted-foreground">{study.uploadedFiles?.length || 0} files uploaded</p>
               </div>
             </CardContent>
           </Card>

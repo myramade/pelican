@@ -6,16 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Dashboard from "@/pages/Dashboard";
-import IntakeStep1 from "@/pages/IntakeStep1";
-import IntakeStep2 from "@/pages/IntakeStep2";
-import IntakeStep3 from "@/pages/IntakeStep3";
-import IntakeStep4 from "@/pages/IntakeStep4";
-import IntakeStep5 from "@/pages/IntakeStep5";
-import IntakeStep6 from "@/pages/IntakeStep6";
-import IntakeStep7 from "@/pages/IntakeStep7";
-import IntakeStep8 from "@/pages/IntakeStep8";
-import IntakeStep9 from "@/pages/IntakeStep9";
-import IntakeStep10 from "@/pages/IntakeStep10";
+import NewStudy from "@/pages/NewStudy";
 import StudyDetail from "@/pages/StudyDetail";
 import AllStudies from "@/pages/AllStudies";
 import AllReports from "@/pages/AllReports";
@@ -26,20 +17,11 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/new-study" component={NewStudy} />
       <Route path="/studies" component={AllStudies} />
       <Route path="/reports" component={AllReports} />
       <Route path="/settings" component={Settings} />
       <Route path="/study/:id" component={StudyDetail} />
-      <Route path="/intake/step1" component={IntakeStep1} />
-      <Route path="/intake/step2" component={IntakeStep2} />
-      <Route path="/intake/step3" component={IntakeStep3} />
-      <Route path="/intake/step4" component={IntakeStep4} />
-      <Route path="/intake/step5" component={IntakeStep5} />
-      <Route path="/intake/step6" component={IntakeStep6} />
-      <Route path="/intake/step7" component={IntakeStep7} />
-      <Route path="/intake/step8" component={IntakeStep8} />
-      <Route path="/intake/step9" component={IntakeStep9} />
-      <Route path="/intake/step10" component={IntakeStep10} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -8,27 +8,42 @@ import { useEffect, useState } from "react";
 const MOCK_STUDIES = [
   {
     id: "1",
+    impactStudyName: "Q1 2025 Leadership Impact Study",
     programName: "Leadership Training Program",
+    userRole: "L&D Manager",
+    programType: "Leadership",
+    programStartDate: "2025-01-15",
+    programReason: "Develop leadership capabilities across mid-level management to improve team performance and retention.",
+    stakeholders: ["Trainees", "Trainee's Managers", "L&D Leadership"],
+    uploadedFiles: [],
     progress: 50,
     status: "In Progress",
   },
   {
     id: "2",
+    impactStudyName: "Sales Enablement Q4 2024",
     programName: "Sales Enablement Workshop",
+    userRole: "Sales Training Lead",
+    programType: "Sales",
+    programStartDate: "2024-10-01",
+    programReason: "Improve sales team closing rates and reduce sales cycle length through enhanced negotiation skills.",
+    stakeholders: ["Trainees", "Instructors", "Executive Leadership"],
+    uploadedFiles: [],
     progress: 85,
     status: "In Progress",
   },
   {
     id: "3",
+    impactStudyName: "DEI Initiative 2024",
     programName: "DEI Initiative Study",
+    userRole: "Head of DEI",
+    programType: "DEI",
+    programStartDate: "2024-03-01",
+    programReason: "Create a more inclusive workplace culture and improve diverse talent retention.",
+    stakeholders: ["Trainees", "Organizational Leadership", "Operations"],
+    uploadedFiles: [],
     progress: 100,
     status: "Completed",
-  },
-  {
-    id: "4",
-    programName: "Technical Skills Development",
-    progress: 30,
-    status: "Draft",
   },
 ];
 
@@ -56,7 +71,7 @@ export default function Dashboard() {
           </p>
         </div>
         <Button asChild data-testid="button-start-new-study">
-          <Link href="/intake/step1">
+          <Link href="/new-study">
             <Plus className="h-4 w-4 mr-2" />
             Start New Impact Study
           </Link>
@@ -67,7 +82,7 @@ export default function Dashboard() {
         <div className="text-center py-16">
           <p className="text-muted-foreground mb-4">No studies yet. Start your first impact study!</p>
           <Button asChild>
-            <Link href="/intake/step1">
+            <Link href="/new-study">
               <Plus className="h-4 w-4 mr-2" />
               Start New Impact Study
             </Link>
