@@ -17,7 +17,7 @@ A web application for managing impact studies of L&D/training programs with AI-p
 
 
 
-## 🤝 Contributing
+## Contributing
 
 This is a prototype application. For production use, consider:
 - Adding user authentication
