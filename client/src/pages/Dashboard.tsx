@@ -48,7 +48,7 @@ export default function Dashboard() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {studies.map((study) => (
-            <StudyCard key={study.id} {...study} />
+            <StudyCard key={study.id} study={study} />
           ))}
         </div>
       )}

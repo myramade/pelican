@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { openai } from "./openai";
-import { generateSurveyRequestSchema } from "@shared/api-schemas";
+import { generateSurveyRequestSchema, updateStudySchema } from "@shared/api-schemas";
 import { fromZodError } from "zod-validation-error";
 import { insertStudySchema } from "@shared/schema";
 
@@ -73,7 +73,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update study
   app.put("/api/studies/:id", async (req, res) => {
     try {
-      const study = await storage.updateStudy(req.params.id, req.body);
+      const validationResult = updateStudySchema.safeParse(req.body);
+      
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ 
+          error: "Validation failed",
+          message: validationError.message,
+          code: "VALIDATION_ERROR"
+        });
+      }
+
+      const study = await storage.updateStudy(req.params.id, validationResult.data);
       if (!study) {
         return res.status(404).json({ 
           error: "Study not found",
@@ -88,6 +99,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
         error: "Failed to update study",
         message: "Unable to update study. Please try again.",
         code: "UPDATE_ERROR"
+      });
+    }
+  });
+
+  // Delete study
+  app.delete("/api/studies/:id", async (req, res) => {
+    try {
+      const success = await storage.deleteStudy(req.params.id);
+      if (!success) {
+        return res.status(404).json({ 
+          error: "Study not found",
+          message: "The requested study does not exist.",
+          code: "NOT_FOUND"
+        });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting study:", error);
+      res.status(500).json({ 
+        error: "Failed to delete study",
+        message: "Unable to delete study. Please try again.",
+        code: "DELETE_ERROR"
       });
     }
   });
