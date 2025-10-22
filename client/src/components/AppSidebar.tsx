@@ -11,6 +11,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { Link, useLocation } from "wouter";
+import logoUrl from "@assets/birdai_1761144228715.png";
 
 const menuItems = [
   {
@@ -31,7 +32,7 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarHeader className="p-6">
-        <h1 className="text-2xl font-semibold text-sidebar-foreground">BirdsAI</h1>
+        <img src={logoUrl} alt="BirdsAI" className="h-10 w-auto" data-testid="img-logo" />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
