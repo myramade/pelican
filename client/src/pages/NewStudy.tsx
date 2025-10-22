@@ -13,9 +13,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileUploadZone } from "@/components/FileUploadZone";
 import { useLocation } from "wouter";
 import { useState } from "react";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
 
 const PROGRAM_TYPES = [
   "Leadership",
@@ -43,6 +44,8 @@ const STAKEHOLDER_OPTIONS = [
 
 export default function NewStudy() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState({
     impactStudyName: "",
     programName: "",
@@ -63,33 +66,78 @@ export default function NewStudy() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (formData.stakeholders.length === 0) {
-      alert("Please select at least one stakeholder");
+      toast({
+        title: "Missing Information",
+        description: "Please select at least one stakeholder",
+        variant: "destructive",
+      });
       return;
     }
 
-    const newStudy = {
-      id: Date.now().toString(),
-      programName: formData.programName,
-      impactStudyName: formData.impactStudyName,
-      userRole: formData.userRole,
-      programType: formData.programType,
-      programStartDate: formData.programStartDate,
-      programReason: formData.programReason,
-      stakeholders: formData.stakeholders,
-      uploadedFiles,
-      progress: 15,
-      status: "In Progress",
-    };
+    setIsGenerating(true);
 
-    const studies = JSON.parse(localStorage.getItem("pelican_studies") || "[]");
-    studies.push(newStudy);
-    localStorage.setItem("pelican_studies", JSON.stringify(studies));
+    try {
+      // Generate AI survey recommendations
+      const response = await fetch("/api/generate-survey", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          programName: formData.programName,
+          programType: formData.programType,
+          programReason: formData.programReason,
+          stakeholders: formData.stakeholders,
+          uploadedFiles,
+        }),
+      });
 
-    setLocation(`/study/${newStudy.id}`);
+      if (!response.ok) {
+        throw new Error("Failed to generate survey");
+      }
+
+      const surveyData = await response.json();
+
+      const newStudy = {
+        id: Date.now().toString(),
+        programName: formData.programName,
+        impactStudyName: formData.impactStudyName,
+        userRole: formData.userRole,
+        programType: formData.programType,
+        programStartDate: formData.programStartDate,
+        programReason: formData.programReason,
+        stakeholders: formData.stakeholders,
+        uploadedFiles,
+        surveyQuestions: surveyData.questions || [],
+        sampleSize: surveyData.sampleSize || null,
+        progress: 15,
+        status: "In Progress",
+      };
+
+      const studies = JSON.parse(localStorage.getItem("pelican_studies") || "[]");
+      studies.push(newStudy);
+      localStorage.setItem("pelican_studies", JSON.stringify(studies));
+
+      toast({
+        title: "Impact Study Created",
+        description: "AI-generated survey recommendations are ready to review",
+      });
+
+      setLocation(`/study/${newStudy.id}`);
+    } catch (error) {
+      console.error("Error creating study:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create impact study. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -224,8 +272,15 @@ export default function NewStudy() {
             </div>
 
             <div className="flex justify-end pt-4">
-              <Button type="submit" data-testid="button-submit">
-                Create Impact Study
+              <Button type="submit" disabled={isGenerating} data-testid="button-submit">
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Generating AI Survey...
+                  </>
+                ) : (
+                  "Create Impact Study"
+                )}
               </Button>
             </div>
           </CardContent>

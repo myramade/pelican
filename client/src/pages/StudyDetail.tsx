@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, Lightbulb, AlertCircle, TrendingUp } from "lucide-react";
+import { ChevronLeft, Lightbulb, AlertCircle, TrendingUp, CheckCircle2 } from "lucide-react";
 import { Link, useParams } from "wouter";
 import { useEffect, useState } from "react";
 
@@ -196,20 +196,78 @@ export default function StudyDetail() {
         </TabsContent>
 
         <TabsContent value="insights" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>AI-Generated Insights</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="prose prose-sm max-w-none">
-                {study.aiInsights?.split('\n\n').map((paragraph: string, i: number) => (
-                  <p key={i} className="text-sm mb-3 last:mb-0">
-                    {paragraph}
+          {study.surveyQuestions && study.surveyQuestions.length > 0 && (
+            <>
+              {study.sampleSize && (
+                <Card className="border-primary/50">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="h-5 w-5 text-primary" />
+                      <CardTitle>Sample Size Recommendation</CardTitle>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-3xl font-bold text-primary">
+                          {study.sampleSize.recommended}
+                        </span>
+                        <span className="text-muted-foreground">participants recommended</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-2">
+                        {study.sampleSize.explanation}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>AI-Generated Survey Questions</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Based on the Kirkpatrick Four-Level Training Evaluation Model
                   </p>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {["Level 1: Reaction", "Level 2: Learning", "Level 3: Behavior", "Level 4: Results"].map((level) => {
+                    const questionsForLevel = study.surveyQuestions.filter(
+                      (q: any) => q.level === level
+                    );
+                    
+                    if (questionsForLevel.length === 0) return null;
+
+                    return (
+                      <div key={level} className="space-y-3">
+                        <h3 className="font-semibold text-base">{level}</h3>
+                        <div className="space-y-3">
+                          {questionsForLevel.map((q: any, idx: number) => (
+                            <Card key={idx} className="bg-muted/30">
+                              <CardContent className="p-4">
+                                <div className="space-y-2">
+                                  <div className="flex items-start justify-between gap-3">
+                                    <p className="text-sm flex-1">{q.question}</p>
+                                    <div className="flex gap-2 shrink-0">
+                                      <Badge variant="outline" className="text-xs">
+                                        {q.audience}
+                                      </Badge>
+                                      <Badge variant="secondary" className="text-xs">
+                                        {q.type}
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            </>
+          )}
         </TabsContent>
       </Tabs>
     </div>
