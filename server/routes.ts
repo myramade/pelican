@@ -5,6 +5,7 @@ import { openai } from "./openai";
 import { generateSurveyRequestSchema, updateStudySchema } from "@shared/api-schemas";
 import { fromZodError } from "zod-validation-error";
 import { insertStudySchema } from "@shared/schema";
+import { ERROR_MESSAGES, OPENAI_MODEL } from "@shared/constants";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all studies
@@ -16,7 +17,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error fetching studies:", error);
       res.status(500).json({ 
         error: "Failed to fetch studies",
-        message: "Unable to retrieve studies. Please try again.",
+        message: ERROR_MESSAGES.FETCH_STUDIES,
         code: "FETCH_ERROR"
       });
     }
@@ -148,9 +149,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         uploadedFiles,
       } = validationResult.data;
 
-      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
       const completion = await openai.chat.completions.create({
-        model: "gpt-5",
+        model: OPENAI_MODEL,
         messages: [
           {
             role: "system",
