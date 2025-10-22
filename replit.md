@@ -11,16 +11,25 @@ Create a web application that allows L&D professionals to:
 4. Track study progress with AI-generated recommendations
 
 ## Recent Changes (October 22, 2025)
-- Integrated OpenAI GPT-5 via Replit AI Integrations for AI survey generation
-- Created `/api/generate-survey` endpoint that analyzes program data and generates Kirkpatrick-based survey questions
-- Updated NewStudy.tsx to call AI API on form submission with loading states and error handling
-- Enhanced StudyDetail.tsx to display AI-generated survey questions organized by Kirkpatrick level
-- Added sample size recommendations with AI explanations
-- Survey questions include audience targeting (Participant, Manager, HR) and question types (Rating Scale, Multiple Choice, Open-ended)
-- Implemented Zod validation for API requests (shared/api-schemas.ts)
-- Added structured error responses with error codes (VALIDATION_ERROR, AI_GENERATION_ERROR, UNKNOWN_ERROR)
-- Added graceful empty state UI when survey data is pending or missing
-- Improved error messaging to provide helpful feedback to users
+
+### Database Migration to PostgreSQL
+- **Replaced localStorage with PostgreSQL** for persistent data storage using Drizzle ORM
+- **Created complete REST API** with full CRUD operations:
+  - GET /api/studies - Fetch all studies
+  - GET /api/studies/:id - Fetch single study
+  - POST /api/studies - Create new study
+  - PUT /api/studies/:id - Update study (with AI-generated data)
+  - DELETE /api/studies/:id - Delete study
+- **Implemented Zod validation** on all endpoints (insertStudySchema, updateStudySchema)
+- **Updated all frontend components** to use TanStack Query instead of localStorage:
+  - Dashboard: Fetches studies from API, displays status badges (Draft/Completed)
+  - NewStudy: Posts to API, then updates with AI survey data
+  - StudyDetail: Fetches study by ID with loading states
+  - StudyCard: Added delete button with confirmation, toast notifications, cache invalidation
+- **Database schema** uses JSONB columns for complex data (surveyQuestions, sampleSize, stakeholders, uploadedFiles)
+- **Storage layer** (server/storage.ts) implements DatabaseStorage class with full CRUD
+- **Type safety** maintained between frontend and backend using shared types
+- All AI features (GPT-5 survey generation, sample size recommendations) remain fully functional with database persistence
 
 ## User Preferences
 - Design Style: Professional productivity tool (Linear/Notion/Asana inspiration)
@@ -32,32 +41,41 @@ Create a web application that allows L&D professionals to:
 ## Project Architecture
 
 ### Tech Stack
-- Frontend: React + TypeScript + Vite + Wouter (routing)
+- Frontend: React + TypeScript + Vite + Wouter (routing) + TanStack Query (server state)
 - Backend: Express + TypeScript
+- Database: PostgreSQL with Drizzle ORM
 - AI: OpenAI GPT-5 via Replit AI Integrations (no API key needed, charges billed to credits)
-- Storage: In-memory localStorage (no database needed for prototype)
+- Validation: Zod schemas for request/response validation
 - UI: Shadcn + Tailwind CSS
 - Icons: Lucide React
 
 ### Key Files
-- `client/src/pages/NewStudy.tsx` - Single-page intake form with 7 fields
-- `client/src/pages/StudyDetail.tsx` - Study details with AI-generated survey questions
-- `client/src/pages/Dashboard.tsx` - Overview of all impact studies
+- `client/src/pages/Dashboard.tsx` - Study list with delete functionality, uses TanStack Query
+- `client/src/pages/NewStudy.tsx` - Single-page intake form, posts to API then updates with AI data
+- `client/src/pages/StudyDetail.tsx` - Study details with AI insights, fetches from API by ID
+- `client/src/components/StudyCard.tsx` - Study card with delete button and status badges
 - `client/src/components/AppSidebar.tsx` - Navigation sidebar
-- `server/openai.ts` - OpenAI client configuration
-- `server/routes.ts` - API routes including `/api/generate-survey`
-- `shared/schema.ts` - Data types (has unused user auth table)
+- `server/routes.ts` - Complete REST API endpoints with Zod validation
+- `server/storage.ts` - Database storage layer (DatabaseStorage) with CRUD operations
+- `server/db.ts` - PostgreSQL connection via Drizzle
+- `server/openai.ts` - OpenAI client configuration for GPT-5
+- `shared/schema.ts` - Drizzle schema for studies table with JSONB columns
+- `shared/api-schemas.ts` - Zod validation schemas (insertStudySchema, updateStudySchema, generateSurveyRequestSchema)
+- `client/src/lib/queryClient.ts` - TanStack Query configuration with apiRequest helper
 - `client/src/index.css` - Design system colors and theme
 
 ### Data Model
-Studies stored in localStorage with structure:
-- Basic info: id, programName, impactStudyName, userRole, programType, programStartDate, programReason
-- Stakeholders: array of selected stakeholder types
-- uploadedFiles: array of file metadata
-- surveyQuestions: AI-generated questions array
-- sampleSize: { recommended: number, explanation: string }
-- progress: number (0-100)
-- status: string
+Studies stored in PostgreSQL `studies` table with Drizzle ORM:
+- **Scalar fields**: id (varchar UUID), impactStudyName, programName, userRole, programType, programStartDate, programReason
+- **JSONB fields** (for complex data):
+  - stakeholders: array of strings (e.g., ["Senior Management", "HR Team"])
+  - uploadedFiles: array of file objects (metadata only, files not actually stored)
+  - surveyQuestions: AI-generated questions array with level, question, audience, type
+  - sampleSize: object with { recommended: number, explanation: string }
+- **Derived fields** (frontend only):
+  - status: "Draft" or "Completed" (based on whether surveyQuestions exist)
+
+**Note**: Drizzle automatically maps between camelCase (TypeScript) and snake_case (PostgreSQL columns)
 
 ### AI Features
 1. **Survey Generation**: Analyzes program data and generates questions for all four Kirkpatrick levels:
