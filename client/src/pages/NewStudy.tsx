@@ -97,7 +97,8 @@ export default function NewStudy() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to generate survey");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to generate survey");
       }
 
       const surveyData = await response.json();
@@ -131,8 +132,8 @@ export default function NewStudy() {
     } catch (error) {
       console.error("Error creating study:", error);
       toast({
-        title: "Error",
-        description: "Failed to create impact study. Please try again.",
+        title: "Error Creating Study",
+        description: error instanceof Error ? error.message : "Failed to create impact study. Please try again.",
         variant: "destructive",
       });
     } finally {

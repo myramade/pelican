@@ -2,18 +2,32 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { openai } from "./openai";
+import { generateSurveyRequestSchema } from "@shared/api-schemas";
+import { fromZodError } from "zod-validation-error";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Generate AI survey recommendations based on study data
   app.post("/api/generate-survey", async (req, res) => {
     try {
+      // Validate request body
+      const validationResult = generateSurveyRequestSchema.safeParse(req.body);
+      
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ 
+          error: "Validation failed",
+          message: validationError.message,
+          code: "VALIDATION_ERROR"
+        });
+      }
+
       const {
         programName,
         programType,
         programReason,
         stakeholders,
         uploadedFiles,
-      } = req.body;
+      } = validationResult.data;
 
       // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
       const completion = await openai.chat.completions.create({
@@ -74,7 +88,22 @@ Output format (JSON):
       res.json(result);
     } catch (error) {
       console.error("Error generating survey:", error);
-      res.status(500).json({ error: "Failed to generate survey" });
+      
+      // Provide structured error response
+      if (error instanceof Error) {
+        res.status(500).json({ 
+          error: "AI generation failed",
+          message: "Unable to generate survey recommendations. Please try again.",
+          code: "AI_GENERATION_ERROR",
+          details: error.message
+        });
+      } else {
+        res.status(500).json({ 
+          error: "Failed to generate survey",
+          message: "An unexpected error occurred. Please try again.",
+          code: "UNKNOWN_ERROR"
+        });
+      }
     }
   });
 

@@ -196,7 +196,7 @@ export default function StudyDetail() {
         </TabsContent>
 
         <TabsContent value="insights" className="space-y-6">
-          {study.surveyQuestions && study.surveyQuestions.length > 0 && (
+          {study.surveyQuestions && study.surveyQuestions.length > 0 ? (
             <>
               {study.sampleSize && (
                 <Card className="border-primary/50">
@@ -267,6 +267,22 @@ export default function StudyDetail() {
                 </CardContent>
               </Card>
             </>
+          ) : (
+            <Card>
+              <CardContent className="py-12">
+                <div className="text-center space-y-3">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                    <Lightbulb className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">AI Survey Generation Pending</h3>
+                    <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                      Survey questions and recommendations will appear here once generated. If you just created this study, the AI may still be processing your request.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           )}
         </TabsContent>
       </Tabs>
