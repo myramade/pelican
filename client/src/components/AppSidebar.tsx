@@ -1,4 +1,4 @@
-import { Home, FileText, BarChart3, Settings } from "lucide-react";
+import { Home, Plus } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -19,19 +19,9 @@ const menuItems = [
     icon: Home,
   },
   {
-    title: "All Studies",
-    url: "/studies",
-    icon: FileText,
-  },
-  {
-    title: "All Reports",
-    url: "/reports",
-    icon: BarChart3,
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings,
+    title: "New Study",
+    url: "/new-study",
+    icon: Plus,
   },
 ];
 

@@ -12,8 +12,19 @@ interface StudyCardProps {
   study: Study;
 }
 
+/**
+ * StudyCard Component
+ * Displays a summary card for an impact study with delete functionality
+ * @param {StudyCardProps} props - Component props containing the study data
+ */
 export function StudyCard({ study }: StudyCardProps) {
   const { toast } = useToast();
+
+  // Guard clause for invalid study data
+  if (!study || !study.id) {
+    console.error("StudyCard: Invalid study data", study);
+    return null;
+  }
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -44,10 +55,9 @@ export function StudyCard({ study }: StudyCardProps) {
   };
 
   const getStatus = () => {
-    if (study.surveyQuestions && Array.isArray(study.surveyQuestions) && study.surveyQuestions.length > 0) {
-      return "Completed";
-    }
-    return "Draft";
+    return study.surveyQuestions && Array.isArray(study.surveyQuestions) && study.surveyQuestions.length > 0
+      ? "Completed"
+      : "Draft";
   };
 
   const status = getStatus();
