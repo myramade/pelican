@@ -11,7 +11,7 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar";
 import { Link, useLocation } from "wouter";
-import logoUrl from "@assets/birdsai100x40_1761144673555.png";
+import logoUrl from "@assets/birdsai400x160_1761144881519.png";
 
 const menuItems = [
   {
