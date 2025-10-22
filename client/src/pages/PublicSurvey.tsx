@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, CheckCircle2 } from "lucide-react";
+import { Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { useParams } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface SurveyQuestion {
   level: string;
@@ -28,6 +29,7 @@ interface SurveyData {
  */
 export default function PublicSurvey() {
   const { token } = useParams();
+  const { toast } = useToast();
   const [responses, setResponses] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState(false);
 
@@ -55,7 +57,27 @@ export default function PublicSurvey() {
     const answeredQuestions = Object.keys(responses).length;
     
     if (answeredQuestions < totalQuestions) {
-      alert("Please answer all questions before submitting.");
+      const unansweredQuestions = [];
+      for (let i = 0; i < totalQuestions; i++) {
+        if (!responses[i]) {
+          unansweredQuestions.push(i + 1);
+        }
+      }
+      
+      // Show clear error message to user
+      toast({
+        title: "Incomplete Survey",
+        description: `Please answer all ${totalQuestions} questions before submitting. Missing: Question ${unansweredQuestions.join(", ")}.`,
+        variant: "destructive",
+      });
+      
+      // Scroll to first unanswered question
+      const firstUnanswered = unansweredQuestions[0];
+      const element = document.querySelector(`[data-testid="question-card-${firstUnanswered - 1}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+      
       return;
     }
 

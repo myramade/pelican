@@ -11,6 +11,7 @@ import {
 import { db } from "./db";
 import { users, studies, surveyInvitations, surveyResponses } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
+import { randomUUID } from "node:crypto";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -96,7 +97,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async generateShareToken(studyId: string): Promise<string | undefined> {
-    const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    // Use cryptographically secure random token generation
+    const token = randomUUID();
     const [study] = await db
       .update(studies)
       .set({ shareToken: token })
