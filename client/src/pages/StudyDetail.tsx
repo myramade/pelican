@@ -7,6 +7,7 @@ import { ChevronLeft, Lightbulb, AlertCircle, TrendingUp, CheckCircle2, Loader2 
 import { Link, useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import type { Study } from "@shared/schema";
+import { SurveyInvitationManager } from "@/components/SurveyInvitationManager";
 
 export default function StudyDetail() {
   const { id } = useParams();
@@ -100,6 +101,7 @@ export default function StudyDetail() {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList data-testid="tabs-study-detail">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="survey">Survey</TabsTrigger>
           <TabsTrigger value="data">Data</TabsTrigger>
           <TabsTrigger value="insights">Insights</TabsTrigger>
         </TabsList>
@@ -162,6 +164,23 @@ export default function StudyDetail() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="survey" className="space-y-6">
+          {study.surveyQuestions && Array.isArray(study.surveyQuestions) && study.surveyQuestions.length > 0 ? (
+            <SurveyInvitationManager studyId={study.id} />
+          ) : (
+            <Card>
+              <CardContent className="pt-6 text-center py-16">
+                <p className="text-muted-foreground mb-4">
+                  Survey questions have not been generated yet.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  The AI survey generation must be completed before you can invite stakeholders.
+                </p>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="data" className="space-y-6">

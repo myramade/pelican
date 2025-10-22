@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -8,6 +8,7 @@ import { AppSidebar } from "@/components/AppSidebar";
 import Dashboard from "@/pages/Dashboard";
 import NewStudy from "@/pages/NewStudy";
 import StudyDetail from "@/pages/StudyDetail";
+import PublicSurvey from "@/pages/PublicSurvey";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,32 +17,52 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/new-study" component={NewStudy} />
       <Route path="/study/:id" component={StudyDetail} />
+      <Route path="/survey/:token" component={PublicSurvey} />
       <Route component={NotFound} />
     </Switch>
   );
 }
 
-export default function App() {
+function AppLayout() {
+  const [location] = useLocation();
+  const isPublicSurvey = location.startsWith("/survey/");
+
   const style = {
     "--sidebar-width": "16rem",
   };
 
+  // Public survey page - no sidebar
+  if (isPublicSurvey) {
+    return (
+      <main className="h-screen overflow-auto">
+        <Router />
+      </main>
+    );
+  }
+
+  // Internal pages - with sidebar
+  return (
+    <SidebarProvider style={style as React.CSSProperties}>
+      <div className="flex h-screen w-full">
+        <AppSidebar />
+        <div className="flex flex-col flex-1">
+          <header className="flex items-center gap-2 border-b p-4">
+            <SidebarTrigger data-testid="button-sidebar-toggle" />
+          </header>
+          <main className="flex-1 overflow-auto p-8">
+            <Router />
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
+}
+
+export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <SidebarProvider style={style as React.CSSProperties}>
-          <div className="flex h-screen w-full">
-            <AppSidebar />
-            <div className="flex flex-col flex-1">
-              <header className="flex items-center gap-2 border-b p-4">
-                <SidebarTrigger data-testid="button-sidebar-toggle" />
-              </header>
-              <main className="flex-1 overflow-auto p-8">
-                <Router />
-              </main>
-            </div>
-          </div>
-        </SidebarProvider>
+        <AppLayout />
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>

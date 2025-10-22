@@ -7,6 +7,7 @@ import { fromZodError } from "zod-validation-error";
 import { insertStudySchema, insertSurveyInvitationSchema, insertSurveyResponseSchema } from "@shared/schema";
 import { ERROR_MESSAGES, OPENAI_MODEL } from "@shared/constants";
 import { z } from "zod";
+import { calculateIR, generateIRInsight } from "./utils/calculateIR";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all studies
@@ -275,6 +276,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Mark invitation as completed if provided
       if (req.body.invitationId) {
         await storage.markInvitationCompleted(req.body.invitationId);
+      }
+
+      // Recalculate IR metric
+      try {
+        const allResponses = await storage.getSurveyResponses(study.id);
+        const invitations = await storage.getSurveyInvitations(study.id);
+        
+        if (study.surveyQuestions && Array.isArray(study.surveyQuestions)) {
+          const irMetric = calculateIR(allResponses, study.surveyQuestions as any[]);
+          
+          if (irMetric !== null) {
+            const insight = generateIRInsight(irMetric);
+            const completionPercentage = invitations.length > 0 
+              ? Math.round((allResponses.length / invitations.length) * 100)
+              : 0;
+
+            await storage.updateStudy(study.id, {
+              irMetric,
+              insight,
+              completionPercentage,
+              status: completionPercentage >= 100 ? "Completed" : "In Progress"
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error calculating IR:", error);
+        // Don't fail the response submission if IR calculation fails
       }
 
       res.status(201).json(response);
