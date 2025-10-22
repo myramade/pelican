@@ -4,8 +4,94 @@ import { storage } from "./storage";
 import { openai } from "./openai";
 import { generateSurveyRequestSchema } from "@shared/api-schemas";
 import { fromZodError } from "zod-validation-error";
+import { insertStudySchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Get all studies
+  app.get("/api/studies", async (req, res) => {
+    try {
+      const studies = await storage.getAllStudies();
+      res.json(studies);
+    } catch (error) {
+      console.error("Error fetching studies:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch studies",
+        message: "Unable to retrieve studies. Please try again.",
+        code: "FETCH_ERROR"
+      });
+    }
+  });
+
+  // Get study by id
+  app.get("/api/studies/:id", async (req, res) => {
+    try {
+      const study = await storage.getStudy(req.params.id);
+      if (!study) {
+        return res.status(404).json({ 
+          error: "Study not found",
+          message: "The requested study does not exist.",
+          code: "NOT_FOUND"
+        });
+      }
+      res.json(study);
+    } catch (error) {
+      console.error("Error fetching study:", error);
+      res.status(500).json({ 
+        error: "Failed to fetch study",
+        message: "Unable to retrieve study. Please try again.",
+        code: "FETCH_ERROR"
+      });
+    }
+  });
+
+  // Create new study
+  app.post("/api/studies", async (req, res) => {
+    try {
+      const validationResult = insertStudySchema.safeParse(req.body);
+      
+      if (!validationResult.success) {
+        const validationError = fromZodError(validationResult.error);
+        return res.status(400).json({ 
+          error: "Validation failed",
+          message: validationError.message,
+          code: "VALIDATION_ERROR"
+        });
+      }
+
+      const study = await storage.createStudy(validationResult.data);
+      res.status(201).json(study);
+    } catch (error) {
+      console.error("Error creating study:", error);
+      res.status(500).json({ 
+        error: "Failed to create study",
+        message: "Unable to create study. Please try again.",
+        code: "CREATE_ERROR"
+      });
+    }
+  });
+
+  // Update study
+  app.put("/api/studies/:id", async (req, res) => {
+    try {
+      const study = await storage.updateStudy(req.params.id, req.body);
+      if (!study) {
+        return res.status(404).json({ 
+          error: "Study not found",
+          message: "The requested study does not exist.",
+          code: "NOT_FOUND"
+        });
+      }
+      res.json(study);
+    } catch (error) {
+      console.error("Error updating study:", error);
+      res.status(500).json({ 
+        error: "Failed to update study",
+        message: "Unable to update study. Please try again.",
+        code: "UPDATE_ERROR"
+      });
+    }
+  });
+
   // Generate AI survey recommendations based on study data
   app.post("/api/generate-survey", async (req, res) => {
     try {
