@@ -1,65 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { StudyCard } from "@/components/StudyCard";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { Link } from "wouter";
-import { useEffect, useState } from "react";
-
-// TODO: remove mock functionality
-const MOCK_STUDIES = [
-  {
-    id: "1",
-    impactStudyName: "Q1 2025 Leadership Impact Study",
-    programName: "Leadership Training Program",
-    userRole: "L&D Manager",
-    programType: "Leadership",
-    programStartDate: "2025-01-15",
-    programReason: "Develop leadership capabilities across mid-level management to improve team performance and retention.",
-    stakeholders: ["Trainees", "Trainee's Managers", "L&D Leadership"],
-    uploadedFiles: [],
-    progress: 50,
-    status: "In Progress",
-  },
-  {
-    id: "2",
-    impactStudyName: "Sales Enablement Q4 2024",
-    programName: "Sales Enablement Workshop",
-    userRole: "Sales Training Lead",
-    programType: "Sales",
-    programStartDate: "2024-10-01",
-    programReason: "Improve sales team closing rates and reduce sales cycle length through enhanced negotiation skills.",
-    stakeholders: ["Trainees", "Instructors", "Executive Leadership"],
-    uploadedFiles: [],
-    progress: 85,
-    status: "In Progress",
-  },
-  {
-    id: "3",
-    impactStudyName: "DEI Initiative 2024",
-    programName: "DEI Initiative Study",
-    userRole: "Head of DEI",
-    programType: "DEI",
-    programStartDate: "2024-03-01",
-    programReason: "Create a more inclusive workplace culture and improve diverse talent retention.",
-    stakeholders: ["Trainees", "Organizational Leadership", "Operations"],
-    uploadedFiles: [],
-    progress: 100,
-    status: "Completed",
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import type { Study } from "@shared/schema";
 
 export default function Dashboard() {
-  const [studies, setStudies] = useState<typeof MOCK_STUDIES>([]);
+  const { data: studies = [], isLoading } = useQuery<Study[]>({
+    queryKey: ["/api/studies"],
+  });
 
-  useEffect(() => {
-    // TODO: remove mock functionality - Load from localStorage or API
-    const savedStudies = localStorage.getItem("pelican_studies");
-    if (savedStudies) {
-      setStudies(JSON.parse(savedStudies));
-    } else {
-      setStudies(MOCK_STUDIES);
-      localStorage.setItem("pelican_studies", JSON.stringify(MOCK_STUDIES));
-    }
-  }, []);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

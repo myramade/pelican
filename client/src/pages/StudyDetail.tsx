@@ -3,19 +3,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, Lightbulb, AlertCircle, TrendingUp, CheckCircle2 } from "lucide-react";
+import { ChevronLeft, Lightbulb, AlertCircle, TrendingUp, CheckCircle2, Loader2 } from "lucide-react";
 import { Link, useParams } from "wouter";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import type { Study } from "@shared/schema";
 
 export default function StudyDetail() {
   const { id } = useParams();
-  const [study, setStudy] = useState<any>(null);
+  
+  const { data: study, isLoading } = useQuery<Study>({
+    queryKey: ["/api/studies", id],
+    enabled: !!id,
+  });
 
-  useEffect(() => {
-    const studies = JSON.parse(localStorage.getItem("pelican_studies") || "[]");
-    const found = studies.find((s: any) => s.id === id);
-    setStudy(found);
-  }, [id]);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   if (!study) {
     return (
@@ -189,16 +196,16 @@ export default function StudyDetail() {
               </div>
               <div>
                 <p className="text-sm font-medium mb-1">Uploaded Documents</p>
-                <p className="text-sm text-muted-foreground">{study.uploadedFiles?.length || 0} files uploaded</p>
+                <p className="text-sm text-muted-foreground">{Array.isArray(study.uploadedFiles) ? study.uploadedFiles.length : 0} files uploaded</p>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
         <TabsContent value="insights" className="space-y-6">
-          {study.surveyQuestions && study.surveyQuestions.length > 0 ? (
+          {study.surveyQuestions && Array.isArray(study.surveyQuestions) && study.surveyQuestions.length > 0 ? (
             <>
-              {study.sampleSize && (
+              {study.sampleSize && typeof study.sampleSize === 'object' && 'recommended' in study.sampleSize && (
                 <Card className="border-primary/50">
                   <CardHeader>
                     <div className="flex items-center gap-3">
@@ -210,12 +217,12 @@ export default function StudyDetail() {
                     <div className="space-y-2">
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl font-bold text-primary">
-                          {study.sampleSize.recommended}
+                          {(study.sampleSize as any).recommended}
                         </span>
                         <span className="text-muted-foreground">participants recommended</span>
                       </div>
                       <p className="text-sm text-muted-foreground mt-2">
-                        {study.sampleSize.explanation}
+                        {(study.sampleSize as any).explanation}
                       </p>
                     </div>
                   </CardContent>
@@ -231,7 +238,7 @@ export default function StudyDetail() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {["Level 1: Reaction", "Level 2: Learning", "Level 3: Behavior", "Level 4: Results"].map((level) => {
-                    const questionsForLevel = study.surveyQuestions.filter(
+                    const questionsForLevel = (study.surveyQuestions as any[]).filter(
                       (q: any) => q.level === level
                     );
                     

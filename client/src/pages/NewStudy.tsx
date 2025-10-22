@@ -17,6 +17,8 @@ import { ChevronLeft, Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 const PROGRAM_TYPES = [
   "Leadership",
@@ -45,6 +47,7 @@ const STAKEHOLDER_OPTIONS = [
 export default function NewStudy() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [isGenerating, setIsGenerating] = useState(false);
   const [formData, setFormData] = useState({
     impactStudyName: "",
@@ -81,8 +84,23 @@ export default function NewStudy() {
     setIsGenerating(true);
 
     try {
-      // Generate AI survey recommendations
-      const response = await fetch("/api/generate-survey", {
+      // Step 1: Create the study in the database
+      const studyData = {
+        impactStudyName: formData.impactStudyName,
+        programName: formData.programName,
+        userRole: formData.userRole,
+        programType: formData.programType,
+        programStartDate: formData.programStartDate,
+        programReason: formData.programReason,
+        stakeholders: formData.stakeholders,
+        uploadedFiles: uploadedFiles,
+      };
+
+      const createResponse = await apiRequest("POST", "/api/studies", studyData);
+      const createdStudy = await createResponse.json();
+
+      // Step 2: Generate AI survey recommendations
+      const surveyResponse = await fetch("/api/generate-survey", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -96,39 +114,28 @@ export default function NewStudy() {
         }),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
+      if (!surveyResponse.ok) {
+        const errorData = await surveyResponse.json().catch(() => ({}));
         throw new Error(errorData.message || "Failed to generate survey");
       }
 
-      const surveyData = await response.json();
+      const surveyData = await surveyResponse.json();
 
-      const newStudy = {
-        id: Date.now().toString(),
-        programName: formData.programName,
-        impactStudyName: formData.impactStudyName,
-        userRole: formData.userRole,
-        programType: formData.programType,
-        programStartDate: formData.programStartDate,
-        programReason: formData.programReason,
-        stakeholders: formData.stakeholders,
-        uploadedFiles,
+      // Step 3: Update the study with AI-generated data
+      await apiRequest("PUT", `/api/studies/${createdStudy.id}`, {
         surveyQuestions: surveyData.questions || [],
         sampleSize: surveyData.sampleSize || null,
-        progress: 15,
-        status: "In Progress",
-      };
+      });
 
-      const studies = JSON.parse(localStorage.getItem("pelican_studies") || "[]");
-      studies.push(newStudy);
-      localStorage.setItem("pelican_studies", JSON.stringify(studies));
+      // Invalidate and refetch studies
+      queryClient.invalidateQueries({ queryKey: ["/api/studies"] });
 
       toast({
         title: "Impact Study Created",
         description: "AI-generated survey recommendations are ready to review",
       });
 
-      setLocation(`/study/${newStudy.id}`);
+      setLocation(`/study/${createdStudy.id}`);
     } catch (error) {
       console.error("Error creating study:", error);
       toast({
